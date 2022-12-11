@@ -64,11 +64,14 @@ public class ScrollBar : MonoBehaviour
         SetColliderSize(childCount);
         CorrectPosition();
     }
-    void SetColliderSize(int childCount) // меняем размер коллайдера 
+    void SetColliderSize(int childCount) // меняем размер коллайдера и его границы
     {
         touchCollider.size = new Vector2(childCount + (childCount * 0.1f), touchCollider.size.y);
         touchCollider.offset = new Vector2(childCount * 0.5f, touchCollider.offset.y);
-        bounds.y = bounds.x - touchCollider.size.x + 3f;
+		if(childCount > 5)
+			bounds.y = bounds.x - touchCollider.size.x + 6f;
+		else			
+			bounds.y = bounds.x;
     }
     void CorrectPosition() // двигаем чтоб не уехали за пределы экрана
     {
