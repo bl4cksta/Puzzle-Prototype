@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 public class UIController : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI counterText, levelText;
-    [SerializeField] private GameObject gameScreen, menuScreen, winScreen;
+    [SerializeField] private GameObject gameScreen, menuScreen, winScreen, settingsScreen;
     [SerializeField] private Vector2 winScreenHiddenPoint;
 
     private int mainCounter;
@@ -19,6 +19,7 @@ public class UIController : MonoBehaviour
 
         gameScreen.SetActive(false);
         winScreen.SetActive(false);
+        settingsScreen.SetActive(false);
         menuScreen.SetActive(true);
     }
     private void Start()
@@ -27,7 +28,7 @@ public class UIController : MonoBehaviour
         levelText.text = "LEVEL " + curLevel;
     }
 
-    void SetCounter(int count) // ставим пазл в нужное место, обновляем счётчик
+    void SetCounter(int count) // обновляем счётчик собранных пазлов
     {
         if (mainCounter == 0) mainCounter = (count + 1);
         else currentCounter++;
@@ -39,8 +40,8 @@ public class UIController : MonoBehaviour
     void Win()
     {
         gameScreen.SetActive(false);
-        menuScreen.SetActive(false);
 
+        // плавный "выезд" Win Screen
         var winEndPoint = winScreen.transform.position;
         winScreen.transform.localPosition = winScreenHiddenPoint;
         winScreen.transform.DOMove(winEndPoint, 1f);
@@ -49,7 +50,6 @@ public class UIController : MonoBehaviour
     void StartGame()
     {
         menuScreen.SetActive(false);
-        winScreen.SetActive(false);
         gameScreen.SetActive(true);
     }
 
@@ -57,8 +57,13 @@ public class UIController : MonoBehaviour
     {
         GlobalEventManager.StartingGame();
     }
-    public void BtnClaimWin()
+    public void BtnRestartScene()
     {
         SceneManager.LoadScene(0);
+    }
+    public void BtnOpenSettings()
+    {
+        menuScreen.SetActive(false);
+        settingsScreen.SetActive(true);
     }
 }

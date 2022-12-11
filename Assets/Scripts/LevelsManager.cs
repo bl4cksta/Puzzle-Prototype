@@ -40,13 +40,17 @@ public class LevelsManager : MonoBehaviour
     {
         StartLevel();
     }
-    void StartLevel()
+    void StartLevel() // создаём Level Creator с заданными параметрами
     {
         levelId = PlayerPrefs.GetInt("Level", 0);
-
+        var usingColor = true;
 #if UNITY_EDITOR
         if(level != 0) levelId = level;
 #endif
+
+        usingColor = PlayerPrefs.GetInt("UseColor", 1) > 0 ? true : false;
+        showAssembled = PlayerPrefs.GetInt("UsePreshow", 1) > 0 ? true : false;
+        isRotationMode = PlayerPrefs.GetInt("UseRotation", 1) > 0 ? true : false;
         var curLevel = Instantiate(levelPrefab);
 
         if (isRotationMode) Instantiate(puzzleRotator);
@@ -62,15 +66,15 @@ public class LevelsManager : MonoBehaviour
                 else row++;
             }
             
-            curLevel.SetupLevel(Mathf.Clamp(col, 2, 8), Mathf.Clamp(row, 2, 6), true, showAssembled, isRotationMode, player, scrollBar); // , borders
+            curLevel.SetupLevel(Mathf.Clamp(col, 2, 8), Mathf.Clamp(row, 2, 6), usingColor, showAssembled, isRotationMode, player, scrollBar);
         }
         else
         {
             curLevel.SetupLevel(columns[Mathf.Clamp(levelId, 0, columns.Length)], rows[Mathf.Clamp(levelId, 0, rows.Length)],
-                useColor[Mathf.Clamp(levelId, 0, useColor.Length)], showAssembled, isRotationMode, player, scrollBar); // , borders
+                useColor[Mathf.Clamp(levelId, 0, useColor.Length)], showAssembled, isRotationMode, player, scrollBar);
         }
     }
-    void SetCounter(int count)
+    void SetCounter(int count) // победный счётчик
     {
         if (mainCounter == 0) mainCounter = (count + 1);
         else currentCounter++;

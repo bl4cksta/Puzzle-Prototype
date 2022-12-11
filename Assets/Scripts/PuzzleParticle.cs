@@ -32,7 +32,7 @@ public class PuzzleParticle : MonoBehaviour
         touchCollider.enabled = false;
     }
 
-    private void OnMouseDown()
+    private void OnMouseDown() // нажимаем
     {
         if (isDragging) return;
 
@@ -40,13 +40,16 @@ public class PuzzleParticle : MonoBehaviour
         offset = transform.position - Camera.main.ScreenToWorldPoint(Input.mousePosition);
         offset.z = 0;
 
-        transform.DOKill();
-        transform.DOScale(1f, 0.3f);
+        
 
+
+        // вверх иерархии
         transform.SetParent(null);
 
+        // поднимаем вверх Sorting Order у рендерера
         SetSortingOrders(2);
 
+        // так же перемещаем все партиклы которые в зацепе
         foreach (var i in connectedParticles)
             i.transform.SetParent(transform);
 
@@ -54,34 +57,48 @@ public class PuzzleParticle : MonoBehaviour
         {
             GlobalEventManager.PickPuzzle();
             isAlreadyPicked = true;
+
+            // увеличиваем, можно добавить проверку на единственный перформ чтоб лишний раз не грузить твинами
+            transform.DOKill();
+            transform.DOScale(1f, 0.3f);
         }
     }
-    private void OnMouseUp()
+    private void OnMouseDrag() // ведём
+    {
+        if (!isDragging) return;
+        var mousePos = Input.mousePosition;
+        transform.position = Camera.main.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, 10)) + offset;
+    }
+    private void OnMouseUp() // отпускаем
     {
         if(!isDragging) return;
 
         isDragging = false;
 
-
+        // округляем до ближайшего тайла
         var x = Mathf.Round(transform.position.x);
         var y = Mathf.Round(transform.position.y);
         var newPos = new Vector3(x, y);
-
         var camPos = Camera.main.transform.position;
-        //// магнитимся к ближайшему тайлу
+
+        // магнитимся к ближайшему тайлу
         if(Vector3.Distance(transform.position, newPos) <= magnetRange)
             transform.position = newPos;
 
+        // возвращаем в пределы границ 
         newPos = transform.position;
         transform.position = new Vector3(Mathf.Clamp(newPos.x, camPos.x - 2.5f, camPos.x + 2.5f), Mathf.Clamp(newPos.y, camPos.y - 3, camPos.y + 5), 0);
 
         foreach (var i in connectedParticles)
             i.transform.SetParent(null);
 
+        // возвращаем Sorting Order
         SetSortingOrders(0);
 
+        // ищем кого зацепить
         CheckConnections();
 
+        // успешная установка
         if (targetPos == transform.position && Vector3.Distance(transform.rotation.eulerAngles, Vector3.zero) <= 0.5f)
         {
             SetInPlace(false);
@@ -89,12 +106,6 @@ public class PuzzleParticle : MonoBehaviour
 
             connectedParticles.Clear();
         }
-    }
-    private void OnMouseDrag()
-    {
-        if (!isDragging) return;
-        var mousePos = Input.mousePosition;
-        transform.position = Camera.main.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, 10)) + offset;
     }
     
     private void CheckConnections()
@@ -156,7 +167,7 @@ public class PuzzleParticle : MonoBehaviour
         }
         
     }
-    public int[] GetConnections() // optimize links
+    public int[] GetConnections()
     {
         return connections;
     }
@@ -228,14 +239,14 @@ public class PuzzleParticle : MonoBehaviour
     }
     void Win()
     {
-        // do jump or shake?
+        // плавно даём 100% Fade
         var spriteRenderer = GetComponent<SpriteRenderer>();
         //spriteRenderer.DOKill();
         if (currentSequence != null) currentSequence.Kill();
         spriteRenderer.DOFade(1f, 0.9f);
     }
 
-    public void Rotate() // hardcore mode rotation
+    public void Rotate() // крутим пазл по часовой
     {
         transform.DOComplete();
 

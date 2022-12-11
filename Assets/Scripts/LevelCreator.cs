@@ -38,13 +38,13 @@ public class LevelCreator : MonoBehaviour
     }
     private void Init()
     {
-        // подгон размера камеры под картинку
+        // подгон камеры под картинку
         //if (N == 6) Camera.main.orthographicSize = 5.7f;
         //else if (N >= 7) Camera.main.orthographicSize = 6.4f;
+
         SpawnPrefabParticles();
 
         // загрузка уровня сразу 
-        //Invoke(nameof(StartLevel), 1f); 
         var levelStarter = FindObjectOfType<LevelAutoStart>();
         if (levelStarter)
         {
@@ -66,7 +66,6 @@ public class LevelCreator : MonoBehaviour
             go.AddComponent<CircleCollider2D>().radius = colliderRadius;
             var puzzle = go.AddComponent<PuzzleParticle>();
             puzzle.SetConnections(newConnections);
-            //puzzle.SetBorders(borders);
             puzzles[i] = puzzle;
             for (int j = 0; j < 4; j++)
             {
@@ -85,55 +84,24 @@ public class LevelCreator : MonoBehaviour
 
         int[] upColors = new int[N];
         int[] rightColors = new int[N];
-
-        // first row
-        for (int j = 0; j < N; j++)
+               
+        // спавним картину
+        for (int i = 0; i < M; i++)
         {
-            PuzzleParticle particle;
-            if(j == 0) particle = GetParticleByForm(Random.Range(0, 3), Random.Range(0, 3), Random.Range(0, 3), Random.Range(0, 3));
-            else particle = GetParticleByForm(Random.Range(0, 3), Random.Range(0, 3), 0, right[j - 1]);
-
-            if (particle == null)
-            {
-                Debug.LogError("ERROR: Can't build level!");
-                continue;
-            }
-            var particleConnections = particle.GetConnections();
-
-            particle.targetPos = spawnVec;
-
-            up[j] = particleConnections[0];
-            right[j] = particleConnections[1];
-
-            if (useColor && puzzleColors != null)
-            {
-                if (j == 0) SetParticleColor(particle, RandomColor(), RandomColor(), RandomColor(), RandomColor());
-                else SetParticleColor(particle, RandomColor(), RandomColor(), RandomColor(), rightColors[j - 1]);
-                
-               var particleColors = particle.GetColors();
-
-                upColors[j] = particleColors[0];
-                rightColors[j] = particleColors[1];
-
-                SpawnParticle(particle, spawnVec, particleConnections, particleColors);
-            }
-            else SpawnParticle(particle, spawnVec, particleConnections, null);
-
-            spawnVec += Vector3.right;
-            mainCounter++;
-        }
-        
-        // spawning 
-        for (int i = 1; i < M; i++)
-        {
-            spawnVec.x = startPos.x;
-            spawnVec += Vector3.up;
             for (int j = 0; j < N; j++)
             {
                 PuzzleParticle particle;
-                if (j == 0) particle = GetParticleByForm(Random.Range(0, 3), Random.Range(0, 3), up[j], Random.Range(0, 3));
-                //else if (j == N - 1) particle = GetParticle(Random.Range(0, 3), 0, up[j], Random.Range(0, 3)); // если крайний в ряду делаем справа flat
-                else particle = GetParticleByForm(Random.Range(0, 3), Random.Range(0, 3), up[j], right[j - 1]);
+                if (i == 0) // первый ряд 
+                {
+                    if (j == 0) particle = GetParticleByForm(Random.Range(0, 3), Random.Range(1, 3), Random.Range(0, 3), Random.Range(0, 3));
+                    else particle = GetParticleByForm(Random.Range(1, 3), Random.Range(0, 3), 0, right[j - 1]);
+                }
+                else // остальные
+                {
+                    if (j == 0) particle = GetParticleByForm(Random.Range(1, 3), Random.Range(0, 3), up[j], Random.Range(0, 3));
+                    //else if (j == N - 1) particle = GetParticle(Random.Range(0, 3), 0, up[j], Random.Range(0, 3)); // если крайний в ряду делаем справа flat
+                    else particle = GetParticleByForm(Random.Range(1, 3), Random.Range(0, 3), up[j], right[j - 1]);
+                }
 
                 if (particle == null)
                 {
@@ -150,8 +118,16 @@ public class LevelCreator : MonoBehaviour
 
                 if (useColor && puzzleColors != null)
                 {
-                    if (j == 0) SetParticleColor(particle, RandomColor(), RandomColor(), upColors[j], RandomColor());
-                    else SetParticleColor(particle, RandomColor(), RandomColor(), upColors[j], rightColors[j - 1]);
+                    if (i == 0)
+                    {
+                        if (j == 0) SetParticleColor(particle, RandomColor(), RandomColor(), RandomColor(), RandomColor());
+                        else SetParticleColor(particle, RandomColor(), RandomColor(), RandomColor(), rightColors[j - 1]);
+                    }
+                    else
+                    {
+                        if (j == 0) SetParticleColor(particle, RandomColor(), RandomColor(), upColors[j], RandomColor());
+                        else SetParticleColor(particle, RandomColor(), RandomColor(), upColors[j], rightColors[j - 1]);
+                    }
 
                     var particleColors = particle.GetColors();
 
@@ -165,30 +141,31 @@ public class LevelCreator : MonoBehaviour
                 spawnVec += Vector3.right;
                 mainCounter++;
             }
+            spawnVec.x = startPos.x;
+            spawnVec += Vector3.up;
         }
 
-        //Debug.Log("Total puzzles built: " + mainCounter);
         GlobalEventManager.ChangePuzzleCount(mainCounter - 1);
 
-        // clear prefabs
+        // очищаем "префабы"
         foreach (var i in puzzles)
             Destroy(i.gameObject);
         puzzles = null;
 
-        // center camera in the middle
+        // центруем камеру в середину картины
         var middleCount = N * (M / 2) + (N / 2);
         var middleCountPos = transform.GetChild(middleCount).position;
         if (N % 2 == 0) middleCountPos += (Vector3.left * 0.5f);
         player.position = new Vector3(middleCountPos.x, middleCountPos.y - 1);
 
-        var childCount = transform.childCount;
         // randomization
+        var childCount = transform.childCount;        
         for (int i = 0; i < childCount; i++)
         {
             transform.GetChild(i).SetSiblingIndex(Random.Range(0, childCount));
         }
 
-        // tweening to downside
+        // опускаем пазлы в Scroll Bar
         var puzzlesAppeared = 0;
         var counter = 0;
         for (int i = 0; i < childCount; i++)
@@ -226,11 +203,11 @@ public class LevelCreator : MonoBehaviour
             counter++;
         }
 
-        // send start game event
+        // отправляем разрешение на сбор пазла
         if (showAssembled) Invoke(nameof(GameStarted), preshowTimer);
-        else GameStarted();
+        else Invoke(nameof(GameStarted), 0.1f);
     }
-    private PuzzleParticle GetParticleByForm(int up, int right, int down, int left)
+    private PuzzleParticle GetParticleByForm(int up, int right, int down, int left) // подбираем пазл по форме
     {
         foreach(var i in puzzles)
         {
@@ -251,7 +228,7 @@ public class LevelCreator : MonoBehaviour
 
         return null;
     }
-    private void SetParticleColor(PuzzleParticle particle, int up, int right, int down, int left)
+    private void SetParticleColor(PuzzleParticle particle, int up, int right, int down, int left) // устанавливаем пазлу цвет
     {
         var colors = new int[4];
         colors[0] = up;
@@ -262,7 +239,7 @@ public class LevelCreator : MonoBehaviour
         particle.SetColors(colors);
     }
 
-    void SpawnParticle(PuzzleParticle particle, Vector3 spawnVec, int[] connections, int[] colors)
+    void SpawnParticle(PuzzleParticle particle, Vector3 spawnVec, int[] connections, int[] colors) // спавним пазл
     {
         // spawn main GameObject
         var go = Instantiate(particle, spawnVec, Quaternion.identity, transform);
@@ -308,7 +285,7 @@ public class LevelCreator : MonoBehaviour
         GlobalEventManager.GameStarted();
     }
 
-    public void SetupLevel(int m, int n, bool color, bool show, bool hardcore, Transform pl, Transform bar)//, Transform[] brdrs)
+    public void SetupLevel(int m, int n, bool color, bool show, bool hardcore, Transform pl, Transform bar) // устанавливаем defaults 
     {
         M = m;
         N = n;

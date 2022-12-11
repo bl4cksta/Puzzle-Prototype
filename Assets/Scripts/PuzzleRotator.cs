@@ -26,7 +26,7 @@ public class PuzzleRotator : MonoBehaviour
         {
             var newMousePos = Input.mousePosition;
             var dist = Vector3.Distance(mousePos, newMousePos);
-            if (dist > maxDist) return;
+            if (dist > maxDist) return; // если увели мышь больше заданного расстояния
 
             newMousePos = Camera.main.ScreenToWorldPoint(newMousePos);
             var hitInfo = Physics2D.Raycast(newMousePos, Vector2.zero, 20f, puzzleMask);
