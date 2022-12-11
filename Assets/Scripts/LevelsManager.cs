@@ -4,8 +4,10 @@ public class LevelsManager : MonoBehaviour
 {
     [Header("Defaults")]
     [SerializeField] private LevelCreator levelPrefab;
+    [SerializeField] private LevelAutoStart levelStarter;
     [SerializeField] private Transform player;
     [SerializeField] private Transform scrollBar;
+    //[SerializeField] private Transform[] borders;
     [Header("\nShow assembled puzzle in start of game")]
     [SerializeField] private bool showAssembled;
     [Header("Colors used or just form-factor")]
@@ -15,10 +17,10 @@ public class LevelsManager : MonoBehaviour
     [Header("Columns for each level")]
     [SerializeField] private int[] columns;
 
-    [Header("> > > OR < < <\n\nUse level progression")]
+    [Header("> > > OR < < <\n\nUse simple level progression")]
     [SerializeField] private bool useProgression = false;
 
-    [Header("Debug")]
+    [Header("Debug set level")]
     [SerializeField] private int level;
 
     private int levelId, mainCounter, currentCounter;
@@ -30,7 +32,7 @@ public class LevelsManager : MonoBehaviour
     }
     private void Start()
     {
-        Debug.Log("Start!");
+        //Debug.Log("Start!");
         //DontDestroyOnLoad(gameObject);
         StartLevel();
     }
@@ -54,12 +56,12 @@ public class LevelsManager : MonoBehaviour
                 else row++;
             }
             
-            curLevel.SetupLevel(Mathf.Clamp(col, 2, 8), Mathf.Clamp(row, 2, 6), true, showAssembled, player, scrollBar);
+            curLevel.SetupLevel(Mathf.Clamp(col, 2, 8), Mathf.Clamp(row, 2, 6), true, showAssembled, player, scrollBar); // , borders
         }
         else
         {
             curLevel.SetupLevel(columns[Mathf.Clamp(levelId, 0, columns.Length)], rows[Mathf.Clamp(levelId, 0, rows.Length)],
-                useColor[Mathf.Clamp(levelId, 0, useColor.Length)], showAssembled, player, scrollBar);
+                useColor[Mathf.Clamp(levelId, 0, useColor.Length)], showAssembled, player, scrollBar); // , borders
         }
     }
     void SetCounter(int count)
@@ -75,5 +77,6 @@ public class LevelsManager : MonoBehaviour
     void Win()
     {
         PlayerPrefs.SetInt("Level", levelId + 1);
+        Instantiate(levelStarter);
     }
 }

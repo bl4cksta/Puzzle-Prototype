@@ -29,6 +29,7 @@ public class LevelCreator : MonoBehaviour
     [SerializeField] private int generatorCount = 81;
 
     private PuzzleParticle[] puzzles;
+    private Vector3[] borders;
 
     private void Awake()
     {
@@ -43,6 +44,12 @@ public class LevelCreator : MonoBehaviour
 
         // загрузка уровня сразу 
         //Invoke(nameof(StartLevel), 1f); 
+        var levelStarter = FindObjectOfType<LevelAutoStart>();
+        if (levelStarter)
+        {
+            GlobalEventManager.StartingGame();
+            Destroy(levelStarter.gameObject);
+        }
     }
     private void SpawnPrefabParticles() // создаём "префабы" из которых будем собирать уровень
     {
@@ -58,6 +65,7 @@ public class LevelCreator : MonoBehaviour
             go.AddComponent<CircleCollider2D>().radius = colliderRadius;
             var puzzle = go.AddComponent<PuzzleParticle>();
             puzzle.SetConnections(newConnections);
+            //puzzle.SetBorders(borders);
             puzzles[i] = puzzle;
             for (int j = 0; j < 4; j++)
             {
@@ -200,8 +208,8 @@ public class LevelCreator : MonoBehaviour
                 child.SetParent(scrollBar);
                 var s = DOTween.Sequence();
                 s.Append(child.DOScale(1f, 1f));
-                s.Insert(preshowTimer, child.DOLocalMove(new Vector3(0, 0, -0.22f) + (2 * counter * (minimizedScale - 0.15f) * Vector3.right), 1.5f));
-                s.Insert(preshowTimer, child.DOScale(minimizedScale, 1.5f));
+                s.Insert(preshowTimer, child.DOLocalMove(new Vector3(0, 0, -0.22f) + (2 * counter * (minimizedScale - 0.15f) * Vector3.right), 1.15f));
+                s.Insert(preshowTimer, child.DOScale(minimizedScale, 1.15f));
             }
             else
             {
@@ -296,7 +304,7 @@ public class LevelCreator : MonoBehaviour
         GlobalEventManager.GameStarted();
     }
 
-    public void SetupLevel(int m, int n, bool color, bool show, Transform pl, Transform bar)
+    public void SetupLevel(int m, int n, bool color, bool show, Transform pl, Transform bar)//, Transform[] brdrs)
     {
         M = m;
         N = n;
@@ -304,6 +312,9 @@ public class LevelCreator : MonoBehaviour
         showAssembled = show;
         player = pl;
         scrollBar = bar;
+        borders = new Vector3[2];
+        //borders[0] = brdrs[0].position;
+        //borders[1] = brdrs[1].position;
         Init();
     }
 }

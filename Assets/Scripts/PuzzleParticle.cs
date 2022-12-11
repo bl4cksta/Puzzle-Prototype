@@ -10,6 +10,7 @@ public class PuzzleParticle : MonoBehaviour
     [SerializeField] private int[] connections;
     [SerializeField] private int[] colors;
     [SerializeField] private float magnetRange = 0.25f;
+    //[SerializeField] private Vector3[] borders;
 
     private List<PuzzleParticle> connectedParticles;
     private bool isDragging;
@@ -17,7 +18,7 @@ public class PuzzleParticle : MonoBehaviour
     private bool isAlreadyPicked;
     private Vector3 offset;
     private Collider2D touchCollider;
-
+    private Sequence currentSequence;
     private void Awake()
     {
         GlobalEventManager.OnGameStarted.AddListener(StartGame);
@@ -66,10 +67,13 @@ public class PuzzleParticle : MonoBehaviour
         var x = Mathf.Round(transform.position.x);
         var y = Mathf.Round(transform.position.y);
         var newPos = new Vector3(x, y);
-
-        // магнитимся к ближайшему тайлу
+        //var newPos = new Vector3(Mathf.Clamp(x, borders[0].x, borders[1].x), Mathf.Clamp(y, borders[0].y, borders[1].y));
+        var camPos = Camera.main.transform.position;
+        //// магнитимся к ближайшему тайлу
         if(Vector3.Distance(transform.position, newPos) <= magnetRange)
             transform.position = newPos;
+
+        transform.position = new Vector3(Mathf.Clamp(newPos.x, camPos.x - 3, camPos.x + 3), Mathf.Clamp(newPos.y, camPos.y - 3, camPos.y + 5), 0);
 
         foreach (var i in connectedParticles)
             i.transform.SetParent(null);
@@ -184,16 +188,16 @@ public class PuzzleParticle : MonoBehaviour
         // вариант с Fade всех частей пазла
         //foreach (var i in GetComponentsInChildren<SpriteRenderer>())
         //{
-        //    var s = DOTween.Sequence();
-        //    s.Append(i.DOFade(0.5f, 0.5f));
-        //    s.Append(i.DOFade(0.8f, 0.6f));
+        //    var currentSequence = DOTween.Sequence();
+        //    currentSequence.Append(i.DOFade(0.5f, 0.5f));
+        //    currentSequence.Append(i.DOFade(0.8f, 0.6f));
         //}
 
         // вариант только с центральной частью
         var spriteRenderer = GetComponent<SpriteRenderer>();
-        var s = DOTween.Sequence();
-        s.Append(spriteRenderer.DOFade(0.5f, 0.5f));
-        s.Append(spriteRenderer.DOFade(0.8f, 0.6f));
+        currentSequence = DOTween.Sequence();
+        currentSequence.Append(spriteRenderer.DOFade(0.35f, 0.4f));
+        currentSequence.Append(spriteRenderer.DOFade(0.7f, 0.4f));
 
         if (touchCollider != null) touchCollider.enabled = false;
         if(isClearMemory && connectedParticles != null) connectedParticles.Clear();
@@ -221,11 +225,18 @@ public class PuzzleParticle : MonoBehaviour
             }
         }
     }
+    //public void SetBorders(Vector3[] brdrs)
+    //{
+    //    borders = new Vector3[2];
+    //    borders[0] = brdrs[0];
+    //    borders[1] = brdrs[1];
+    //}
     void Win()
     {
         // do jump or shake?
         var spriteRenderer = GetComponent<SpriteRenderer>();
-        spriteRenderer.DOKill();
-        spriteRenderer.DOFade(1f, 0.5f);
+        //spriteRenderer.DOKill();
+        if (currentSequence != null) currentSequence.Kill();
+        spriteRenderer.DOFade(1f, 0.9f);
     }
 }

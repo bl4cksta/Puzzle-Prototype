@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 7932238858117012324}
   - component: {fileID: 7932238858117012347}
   m_Layer: 0
-  m_Name: LEVEL_MANAGER
+  m_Name: LEVEL_CREATOR
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -64,8 +64,9 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 6cd3f2dc34e3c564a9e32d31b66dfaf9, type: 3}
   puzzleColors:
   - {r: 1, g: 1, b: 1, a: 1}
-  - {r: 0.025950909, g: 0, b: 1, a: 1}
-  - {r: 1, g: 0, b: 0, a: 1}
-  - {r: 0, g: 1, b: 0.07363963, a: 1}
+  - {r: 0, g: 0.3383484, b: 1, a: 1}
+  - {r: 1, g: 0, b: 0.62136126, a: 1}
+  - {r: 0, g: 1, b: 0.016898155, a: 1}
+  - {r: 1, g: 0.8352941, b: 0, a: 1}
   scrollBar: {fileID: 0}
   generatorCount: 81

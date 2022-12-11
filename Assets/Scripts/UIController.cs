@@ -16,15 +16,15 @@ public class UIController : MonoBehaviour
         GlobalEventManager.OnPuzzlesCountChanged.AddListener(SetCounter);
         GlobalEventManager.OnWin.AddListener(Win);
         GlobalEventManager.OnGameStarting.AddListener(StartGame);
+
+        gameScreen.SetActive(false);
+        winScreen.SetActive(false);
+        menuScreen.SetActive(true);
     }
     private void Start()
     {
         var curLevel = PlayerPrefs.GetInt("Level", 0) + 1;
         levelText.text = "LEVEL " + curLevel;
-
-        gameScreen.SetActive(false);
-        winScreen.SetActive(false);
-        menuScreen.SetActive(true);
     }
 
     void SetCounter(int count) // ставим пазл в нужное место, обновляем счётчик
