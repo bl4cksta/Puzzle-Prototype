@@ -922,15 +922,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b39139e7f39f3594cbccec70116e4bcb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelPrefab: {fileID: 7932238858117012347, guid: 63717c2aebe93784087d57efcbaab3e0, type: 3}
-  levelStarter: {fileID: 702243970595741350, guid: fae847a78f070d6468ffd078687d6962, type: 3}
-  player: {fileID: 997989257}
-  scrollBar: {fileID: 1993861960}
   showAssembled: 1
+  isHardcoreMode: 1
   useColor: 
   rows: 
   columns: 
   useProgression: 1
+  levelPrefab: {fileID: 7932238858117012347, guid: 63717c2aebe93784087d57efcbaab3e0, type: 3}
+  levelStarter: {fileID: 702243970595741350, guid: fae847a78f070d6468ffd078687d6962, type: 3}
+  puzzleRotator: {fileID: 7775543147544472744, guid: 189becf913ade2d4fb7541df9f3f7cf6, type: 3}
+  player: {fileID: 997989257}
+  scrollBar: {fileID: 1993861960}
   level: 0
 --- !u!4 &1511910337
 Transform:

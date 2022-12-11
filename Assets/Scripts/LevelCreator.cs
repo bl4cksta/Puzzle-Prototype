@@ -10,6 +10,7 @@ public class LevelCreator : MonoBehaviour
     [SerializeField] private int M = 4, N = 6;
     [SerializeField] private bool useColor = true;
     [SerializeField] private bool showAssembled = true;
+    [SerializeField] private bool isHardcoreMode = false;
 
     [Header("Puzzle particles settings\nSprites: 0 - flat, 1 - bump, 2 - default (puzzle with holes), 3 - color")]
     [SerializeField] private float colliderRadius = 0.6f;
@@ -205,17 +206,20 @@ public class LevelCreator : MonoBehaviour
 
             if (showAssembled)
             {
+                var duration = 1.15f;
                 child.SetParent(scrollBar);
                 var s = DOTween.Sequence();
                 s.Append(child.DOScale(1f, 1f));
-                s.Insert(preshowTimer, child.DOLocalMove(new Vector3(0, 0, -0.22f) + (2 * counter * (minimizedScale - 0.15f) * Vector3.right), 1.15f));
-                s.Insert(preshowTimer, child.DOScale(minimizedScale, 1.15f));
+                s.Insert(preshowTimer, child.DOLocalMove(new Vector3(0, 0, -0.22f) + (2 * counter * (minimizedScale - 0.15f) * Vector3.right), duration));
+                s.Insert(preshowTimer, child.DOScale(minimizedScale, duration));
+                if (isHardcoreMode) s.Insert(preshowTimer, child.DOBlendableRotateBy(new Vector3(0, 0, -90) * Random.Range(0, 5), duration));
             }
             else
             {
                 child.SetParent(scrollBar);
                 child.localPosition = new Vector3(0, 0, -0.22f) + (2 * counter * (minimizedScale - 0.15f) * Vector3.right);
-                child.DOScale(minimizedScale, 0.5f);
+                child.DOScale(minimizedScale, 0.5f); 
+                if (isHardcoreMode) child.transform.rotation = Quaternion.Euler(new Vector3(0, 0, -90) * Random.Range(0, 5));
             }
             i--;
             childCount--;
@@ -304,12 +308,13 @@ public class LevelCreator : MonoBehaviour
         GlobalEventManager.GameStarted();
     }
 
-    public void SetupLevel(int m, int n, bool color, bool show, Transform pl, Transform bar)//, Transform[] brdrs)
+    public void SetupLevel(int m, int n, bool color, bool show, bool hardcore, Transform pl, Transform bar)//, Transform[] brdrs)
     {
         M = m;
         N = n;
         useColor = color;
         showAssembled = show;
+        isHardcoreMode = hardcore;
         player = pl;
         scrollBar = bar;
         borders = new Vector3[2];

@@ -10,7 +10,6 @@ public class PuzzleParticle : MonoBehaviour
     [SerializeField] private int[] connections;
     [SerializeField] private int[] colors;
     [SerializeField] private float magnetRange = 0.25f;
-    //[SerializeField] private Vector3[] borders;
 
     private List<PuzzleParticle> connectedParticles;
     private bool isDragging;
@@ -67,13 +66,14 @@ public class PuzzleParticle : MonoBehaviour
         var x = Mathf.Round(transform.position.x);
         var y = Mathf.Round(transform.position.y);
         var newPos = new Vector3(x, y);
-        //var newPos = new Vector3(Mathf.Clamp(x, borders[0].x, borders[1].x), Mathf.Clamp(y, borders[0].y, borders[1].y));
+
         var camPos = Camera.main.transform.position;
         //// магнитимся к ближайшему тайлу
         if(Vector3.Distance(transform.position, newPos) <= magnetRange)
             transform.position = newPos;
 
-        transform.position = new Vector3(Mathf.Clamp(newPos.x, camPos.x - 3, camPos.x + 3), Mathf.Clamp(newPos.y, camPos.y - 3, camPos.y + 5), 0);
+        newPos = transform.position;
+        transform.position = new Vector3(Mathf.Clamp(newPos.x, camPos.x - 2.5f, camPos.x + 2.5f), Mathf.Clamp(newPos.y, camPos.y - 3, camPos.y + 5), 0);
 
         foreach (var i in connectedParticles)
             i.transform.SetParent(null);
@@ -82,7 +82,7 @@ public class PuzzleParticle : MonoBehaviour
 
         CheckConnections();
 
-        if (targetPos == transform.position)
+        if (targetPos == transform.position && Vector3.Distance(transform.rotation.eulerAngles, Vector3.zero) <= 0.5f)
         {
             SetInPlace(false);
             foreach (var i in connectedParticles) i.SetInPlace(true);
@@ -114,6 +114,7 @@ public class PuzzleParticle : MonoBehaviour
 
             //var particle = i.GetComponent<PuzzleParticle>();
             if (!i.TryGetComponent<PuzzleParticle>(out var particle)) return;
+            if (particle.transform.rotation != Quaternion.Euler(Vector3.zero)) continue;
             if (connectedParticles.Contains(particle)) continue;
 
             // для варианта без проверки targetPos
@@ -225,12 +226,6 @@ public class PuzzleParticle : MonoBehaviour
             }
         }
     }
-    //public void SetBorders(Vector3[] brdrs)
-    //{
-    //    borders = new Vector3[2];
-    //    borders[0] = brdrs[0];
-    //    borders[1] = brdrs[1];
-    //}
     void Win()
     {
         // do jump or shake?
@@ -238,5 +233,40 @@ public class PuzzleParticle : MonoBehaviour
         //spriteRenderer.DOKill();
         if (currentSequence != null) currentSequence.Kill();
         spriteRenderer.DOFade(1f, 0.9f);
+    }
+
+    public void Rotate() // hardcore mode rotation
+    {
+        transform.DOComplete();
+
+        var rotationAngle = new Vector3(0, 0, 90);
+        var min = Mathf.Infinity;
+        var count = 0;
+        var distances = new float[4];
+
+        for (int i = 0; i < 4; i++) distances[i] = Vector3.Distance(transform.rotation.eulerAngles, rotationAngle * i);
+
+        for (int i = 0; i < 4; i++)
+        {
+            if (distances[i] < min)
+            {
+                min = distances[i];
+                count = i;
+            }
+        }        
+        if (min > 0.5f)
+        {
+            transform.rotation = Quaternion.Euler(rotationAngle * count);
+        }
+
+        transform.DOBlendableRotateBy(-rotationAngle, 0.3f);
+
+        // вариант без проверки targetPos
+        //var oldConnections = connections;
+        //connections[0] = oldConnections[3];
+        //connections[1] = oldConnections[0];
+        //connections[2] = oldConnections[1];
+        //connections[3] = oldConnections[2];
+
     }
 }
