@@ -5,7 +5,7 @@ public class LevelsManager : MonoBehaviour
     [Header("\nShow assembled puzzle in start of game")]
     [SerializeField] private bool showAssembled;
     [Header("Hardcore mode with puzzle rotation")]
-    [SerializeField] private bool isHardcoreMode;
+    [SerializeField] private bool isRotationMode;
     [Header("Colors used or just form-factor")]
     [SerializeField] private bool[] useColor;
     [Header("Rows for each level")]
@@ -49,7 +49,7 @@ public class LevelsManager : MonoBehaviour
 #endif
         var curLevel = Instantiate(levelPrefab);
 
-        if (isHardcoreMode) Instantiate(puzzleRotator);
+        if (isRotationMode) Instantiate(puzzleRotator);
 
         if(useProgression || columns == null || rows == null || useColor == null)
         {
@@ -62,12 +62,12 @@ public class LevelsManager : MonoBehaviour
                 else row++;
             }
             
-            curLevel.SetupLevel(Mathf.Clamp(col, 2, 8), Mathf.Clamp(row, 2, 6), true, showAssembled, isHardcoreMode, player, scrollBar); // , borders
+            curLevel.SetupLevel(Mathf.Clamp(col, 2, 8), Mathf.Clamp(row, 2, 6), true, showAssembled, isRotationMode, player, scrollBar); // , borders
         }
         else
         {
             curLevel.SetupLevel(columns[Mathf.Clamp(levelId, 0, columns.Length)], rows[Mathf.Clamp(levelId, 0, rows.Length)],
-                useColor[Mathf.Clamp(levelId, 0, useColor.Length)], showAssembled, isHardcoreMode, player, scrollBar); // , borders
+                useColor[Mathf.Clamp(levelId, 0, useColor.Length)], showAssembled, isRotationMode, player, scrollBar); // , borders
         }
     }
     void SetCounter(int count)

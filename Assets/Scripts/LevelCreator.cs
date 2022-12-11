@@ -10,7 +10,7 @@ public class LevelCreator : MonoBehaviour
     [SerializeField] private int M = 4, N = 6;
     [SerializeField] private bool useColor = true;
     [SerializeField] private bool showAssembled = true;
-    [SerializeField] private bool isHardcoreMode = false;
+    [SerializeField] private bool isRotationMode = false;
 
     [Header("Puzzle particles settings\nSprites: 0 - flat, 1 - bump, 2 - default (puzzle with holes), 3 - color")]
     [SerializeField] private float colliderRadius = 0.6f;
@@ -212,14 +212,14 @@ public class LevelCreator : MonoBehaviour
                 s.Append(child.DOScale(1f, 1f));
                 s.Insert(preshowTimer, child.DOLocalMove(new Vector3(0, 0, -0.22f) + (2 * counter * (minimizedScale - 0.15f) * Vector3.right), duration));
                 s.Insert(preshowTimer, child.DOScale(minimizedScale, duration));
-                if (isHardcoreMode) s.Insert(preshowTimer, child.DOBlendableRotateBy(new Vector3(0, 0, -90) * Random.Range(0, 5), duration));
+                if (isRotationMode) s.Insert(preshowTimer, child.DOBlendableRotateBy(new Vector3(0, 0, -90) * Random.Range(0, 5), duration));
             }
             else
             {
                 child.SetParent(scrollBar);
                 child.localPosition = new Vector3(0, 0, -0.22f) + (2 * counter * (minimizedScale - 0.15f) * Vector3.right);
                 child.DOScale(minimizedScale, 0.5f); 
-                if (isHardcoreMode) child.transform.rotation = Quaternion.Euler(new Vector3(0, 0, -90) * Random.Range(0, 5));
+                if (isRotationMode) child.transform.rotation = Quaternion.Euler(new Vector3(0, 0, -90) * Random.Range(0, 5));
             }
             i--;
             childCount--;
@@ -314,12 +314,23 @@ public class LevelCreator : MonoBehaviour
         N = n;
         useColor = color;
         showAssembled = show;
-        isHardcoreMode = hardcore;
+        isRotationMode = hardcore;
         player = pl;
         scrollBar = bar;
         borders = new Vector3[2];
-        //borders[0] = brdrs[0].position;
-        //borders[1] = brdrs[1].position;
         Init();
+    }
+    // debug
+    public void SetupRotationMode(bool mode)
+    {
+        isRotationMode = mode;
+    }
+    public void SetupPreshowMode(bool mode)
+    {
+        showAssembled = mode;
+    }
+    public void SetupColorMode(bool mode)
+    {
+        useColor = mode;
     }
 }
