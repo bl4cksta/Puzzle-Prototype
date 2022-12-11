@@ -69,7 +69,7 @@ public class ScrollBar : MonoBehaviour
         touchCollider.size = new Vector2(childCount + (childCount * 0.1f), touchCollider.size.y);
         touchCollider.offset = new Vector2(childCount * 0.5f, touchCollider.offset.y);
 		if(childCount > 5)
-			bounds.y = bounds.x - touchCollider.size.x + 6f;
+			bounds.y = bounds.x - touchCollider.size.x + 5.5f;
 		else			
 			bounds.y = bounds.x;
     }
